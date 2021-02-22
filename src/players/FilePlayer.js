@@ -186,6 +186,19 @@ export default class FilePlayer extends Component {
         } else {
           this.dash.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } })
         }
+        let dashConfig = this.props.config.file.dashOptions || {}
+        let results = {}
+        Object.keys(dashConfig).map(x => {
+          if (dashConfig[x].params) {
+            results = this.dash[x](...dashConfig[x].params)
+          } else {
+            results = this.dash[x]()
+          }
+
+          if (dashConfig[x].callback) {
+            dashConfig[x].callback(results)
+          }
+        })
         this.props.onLoaded()
       })
     }
