@@ -179,12 +179,29 @@ export default class FilePlayer extends Component {
     if (this.shouldUseDASH(url)) {
       getSDK(DASH_SDK_URL.replace('VERSION', dashVersion), DASH_GLOBAL).then(dashjs => {
         this.dash = dashjs.MediaPlayer().create()
+        const dashConfig = this.props.config.file.dashOptions || {}
+        if (dashConfig.requestModifier !== undefined) {
+          this.dash.extend('RequestModifier', dashConfig.requestModifier, null)
+        }
+
         this.dash.initialize(this.player, url, this.props.playing)
         this.dash.on('error', this.props.onError)
         if (parseInt(dashVersion) < 3) {
           this.dash.getDebug().setLogToBrowserConsole(false)
         } else {
           this.dash.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } })
+        }
+
+        if (dashConfig.credentials !== undefined) {
+          if (dashConfig.credentials.mediaSegment === true) {
+            this.dash.setXHRWithCredentialsForType('MediaSegment', true)
+          }
+          if (dashConfig.credentials.mpd === true) {
+            this.dash.setXHRWithCredentialsForType('MPD', true)
+          }
+          if (dashConfig.credentials.initializationSegment === true) {
+            this.dash.setXHRWithCredentialsForType('InitializationSegment', true)
+          }
         }
         this.props.onLoaded()
       })
