@@ -109,6 +109,19 @@ export default class Player extends Component {
     return this.player.getSecondsLoaded()
   }
 
+  getCurrentState () {
+    if (!this.isReady) {
+      return {
+        isPlaying: false,
+        currentTime: 0
+      }
+    }
+    return {
+      isPlaying: this.isPlaying,
+      currentTime: this.player.getCurrentTime()
+    }
+  }
+
   getInternalPlayer = (key) => {
     if (!this.player) return null
     return this.player[key]
@@ -164,16 +177,16 @@ export default class Player extends Component {
     if (!this.isReady) {
       return
     }
-    this.isLoading = true
     this.player.play()
+    this.isPlaying = true
   }
 
   pause () {
     if (!this.isReady) {
       return
     }
-    this.isLoading = false
     this.player.pause()
+    this.isPlaying = false
   }
 
   handleReady = () => {

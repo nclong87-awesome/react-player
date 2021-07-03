@@ -122,6 +122,16 @@ export const createReactPlayer = (players, fallback) => {
       this.player.pause()
     }
 
+    getCurrentState = () => {
+      if (!this.player) {
+        return {
+          isPlaying: false,
+          currentTime: 0
+        }
+      }
+      return this.player.getCurrentState()
+    }
+
     handleReady = () => {
       this.props.onReady(this)
     }
