@@ -143,7 +143,7 @@ export default class Player extends Component {
         }
         // Only call onProgress if values have changed
         if (progress.playedSeconds !== this.prevPlayed || progress.loadedSeconds !== this.prevLoaded) {
-          this.props.onProgress(progress)
+          this.props.onProgress(progress, this.isPlaying)
         }
         this.prevPlayed = progress.playedSeconds
         this.prevLoaded = progress.loadedSeconds
