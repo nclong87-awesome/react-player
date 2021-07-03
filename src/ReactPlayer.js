@@ -117,6 +117,11 @@ export const createReactPlayer = (players, fallback) => {
       this.player.play()
     }
 
+    play = () => {
+      if (!this.player) return null
+      this.player.pause()
+    }
+
     handleReady = () => {
       this.props.onReady(this)
     }

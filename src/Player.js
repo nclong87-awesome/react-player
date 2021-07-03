@@ -160,6 +160,22 @@ export default class Player extends Component {
     this.player.seekTo(amount)
   }
 
+  play () {
+    if (!this.isReady) {
+      return
+    }
+    this.isLoading = true
+    this.player.play()
+  }
+
+  pause () {
+    if (!this.isReady) {
+      return
+    }
+    this.isLoading = false
+    this.player.pause()
+  }
+
   handleReady = () => {
     if (!this.mounted) return
     this.isReady = true

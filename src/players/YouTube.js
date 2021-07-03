@@ -130,19 +130,23 @@ export default class YouTube extends Component {
   }
 
   play () {
+    console.log('testtest play')
     this.callPlayer('playVideo')
   }
 
   pause () {
+    console.log('testtest pause')
     this.callPlayer('pauseVideo')
   }
 
   stop () {
+    console.log('testtest stop')
     if (!document.body.contains(this.callPlayer('getIframe'))) return
     this.callPlayer('stopVideo')
   }
 
   seekTo (amount) {
+    console.log('testtest seekTo', amount)
     this.callPlayer('seekTo', amount)
     if (!this.props.playing) {
       this.pause()
