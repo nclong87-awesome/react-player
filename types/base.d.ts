@@ -51,6 +51,7 @@ export interface BaseReactPlayerProps {
 export default class BaseReactPlayer<T extends BaseReactPlayerProps> extends Component<T, any> {
   static canPlay (url: string): boolean;
   static canEnablePIP (url: string): boolean;
+  static getPlayer (url: string): string;
   static addCustomPlayer (player: ReactPlayer): void;
   static removeCustomPlayers (): void;
   seekTo (amount: number, type?: 'seconds' | 'fraction'): void;

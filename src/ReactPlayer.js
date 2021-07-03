@@ -36,6 +36,15 @@ export const createReactPlayer = (players, fallback) => {
       return false
     }
 
+    static getPlayer = url => {
+      for (const Player of [...customPlayers, ...players]) {
+        if (Player.canPlay(url)) {
+          return Player.key
+        }
+      }
+      return null
+    }
+
     static canEnablePIP = url => {
       for (const Player of [...customPlayers, ...players]) {
         if (Player.canEnablePIP && Player.canEnablePIP(url)) {
