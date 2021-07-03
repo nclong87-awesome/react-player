@@ -176,7 +176,7 @@ export default class FilePlayer extends Component {
     if (this.shouldUseDASH(url)) {
       getSDK(DASH_SDK_URL.replace('VERSION', dashVersion), DASH_GLOBAL).then(dashjs => {
         this.dash = dashjs.MediaPlayer().create()
-        const dashConfig = this.props.config.file.dashOptions || {}
+        const dashConfig = this.props.config.file?.dashOptions || {}
         if (dashConfig.requestModifier !== undefined) {
           this.dash.extend('RequestModifier', dashConfig.requestModifier, null)
         }

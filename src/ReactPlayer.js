@@ -112,6 +112,11 @@ export const createReactPlayer = (players, fallback) => {
       this.player.seekTo(fraction, type)
     }
 
+    play = () => {
+      if (!this.player) return null
+      this.player.play()
+    }
+
     handleReady = () => {
       this.props.onReady(this)
     }
