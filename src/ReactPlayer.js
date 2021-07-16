@@ -117,9 +117,14 @@ export const createReactPlayer = (players, fallback) => {
       this.player.play()
     }
 
-    play = () => {
+    pause = () => {
       if (!this.player) return null
       this.player.pause()
+    }
+
+    muted = (val) => {
+      if (!this.player) return null
+      this.player.muted(val)
     }
 
     getCurrentState = () => {

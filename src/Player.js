@@ -189,6 +189,14 @@ export default class Player extends Component {
     this.isPlaying = false
   }
 
+  muted (value) {
+    if (value) {
+      this.player.mute()
+    } else {
+      this.player.unmute()
+    }
+  }
+
   handleReady = () => {
     if (!this.mounted) return
     this.isReady = true
