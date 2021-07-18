@@ -49,7 +49,7 @@ export default class AzureMediaPlayer extends PureComponent {
 
   onLoaded () {
     const { playsinline, config } = this.props
-    const { transcripts } = config
+    const { tracks } = config
     const player = this.player
     player.addEventListener(window.amp.eventName.waiting, this.props.onBuffer)
     player.addEventListener(window.amp.eventName.pause, this.props.onPause)
@@ -63,7 +63,7 @@ export default class AzureMediaPlayer extends PureComponent {
       player.setAttribute('webkit-playsinline', '')
       player.setAttribute('x5-playsinline', '')
     }
-    if (transcripts) {
+    if (tracks) {
       loadJs('https://breakdown.blob.core.windows.net/public/amp-vb.plugin.js', () => player.videobreakdown !== undefined).then(() => {
         player.videobreakdown({
           syncTranscript: true,
@@ -78,7 +78,7 @@ export default class AzureMediaPlayer extends PureComponent {
     this.duration = null
     getSDK(SDK_URL, SDK_GLOBAL).then(() => {
       if (window.amp) {
-        const { nativeControlsForTouch, token, manifestProxy, transcripts } = this.props.config
+        const { nativeControlsForTouch, token, manifestProxy, tracks } = this.props.config
         this.player = window.amp(this.video.current, {
           nativeControlsForTouch: nativeControlsForTouch === true,
           playsInline: this.props.playsinline,
@@ -134,7 +134,7 @@ export default class AzureMediaPlayer extends PureComponent {
             streamingFormats: ['DASH']
           })
         }
-        this.player.src(listSrc, transcripts || [])
+        this.player.src(listSrc, tracks || [])
         if (nativeControlsForTouch === true) {
           setTimeout(() => this.callPlayer('play'), 100)
         }
