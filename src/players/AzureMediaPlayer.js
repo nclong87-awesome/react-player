@@ -47,7 +47,7 @@ export default class AzureMediaPlayer extends PureComponent {
   }
 
   onLoaded () {
-    const { playsinline, config } = this.props
+    const { config } = this.props
     const { tracks } = config
     const player = this.player
     player.addEventListener(window.amp.eventName.waiting, this.props.onBuffer)
@@ -57,11 +57,11 @@ export default class AzureMediaPlayer extends PureComponent {
     player.addEventListener(window.amp.eventName.play, this.props.onPlay)
     player.addEventListener(window.amp.eventName.error, this.props.onError)
     player.addEventListener(window.amp.eventName.playing, this.props.onBufferEnd)
-    if (playsinline) {
-      player.setAttribute('playsinline', '')
-      player.setAttribute('webkit-playsinline', '')
-      player.setAttribute('x5-playsinline', '')
-    }
+    // if (playsinline) {
+    //   player.setAttribute('playsinline', '')
+    //   player.setAttribute('webkit-playsinline', '')
+    //   player.setAttribute('x5-playsinline', '')
+    // }
     if (tracks) {
       loadJs('https://breakdown.blob.core.windows.net/public/amp-vb.plugin.js', () => player.videobreakdown !== undefined).then(() => {
         player.videobreakdown({
@@ -210,7 +210,7 @@ export default class AzureMediaPlayer extends PureComponent {
   }
 
   render () {
-    const { display } = this.props
+    const { display, playsinline } = this.props
     const style = {
       width: '100%',
       height: '100%',
@@ -227,6 +227,7 @@ export default class AzureMediaPlayer extends PureComponent {
           style={style}
           className={`azuremediaplayer ${SKIN}-skin amp-big-play-centered`}
           tabIndex='0'
+          playsInline={playsinline}
         />
       </div>
     )
