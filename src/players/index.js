@@ -70,6 +70,12 @@ export default [
     lazyPlayer: lazy(() => import(/* webpackChunkName: 'reactPlayerKaltura' */'./Kaltura'))
   },
   {
+    key: 'amp',
+    name: 'AzureMediaPlayer',
+    canPlay: canPlay.amp,
+    lazyPlayer: lazy(() => import(/* webpackChunkName: 'reactPlayerAmp' */'./AzureMediaPlayer'))
+  },
+  {
     key: 'file',
     name: 'FilePlayer',
     canPlay: canPlay.file,

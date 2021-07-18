@@ -161,3 +161,31 @@ export function supportsWebKitPresentationMode (video = document.createElement('
   const notMobile = /iPhone|iPod/.test(navigator.userAgent) === false
   return video.webkitSupportsPresentationMode && typeof video.webkitSetPresentationMode === 'function' && notMobile
 }
+
+export function loadCss (href) {
+  var ss = document.styleSheets
+  for (var i = 0, max = ss.length; i < max; i++) {
+    if (ss[i].href === href) {
+      return
+    }
+  }
+  var link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = href
+
+  document.getElementsByTagName('head')[0].appendChild(link)
+}
+
+export function loadJs (src, isLoaded = () => false) {
+  if (isLoaded()) {
+    return Promise.resolve(true)
+  }
+  return new Promise((resolve) => {
+    loadScript(src, (err) => {
+      if (err) {
+        console.error(err.message)
+      }
+      resolve(true)
+    })
+  })
+}

@@ -12,11 +12,24 @@ import { version } from '../../package.json'
 import ReactPlayer from '../index'
 import Duration from './Duration'
 
+function isIOS () {
+  return [
+    'iPad Simulator',
+    'iPhone Simulator',
+    'iPod Simulator',
+    'iPad',
+    'iPhone',
+    'iPod'
+  ].includes(navigator.platform) ||
+  // iPad on iOS 13 detection
+  (navigator.userAgent.includes('Mac') && 'ontouchend' in document)
+}
+
 class App extends Component {
   state = {
     url: null,
     pip: false,
-    playing: true,
+    playing: false,
     controls: false,
     light: false,
     volume: 0.8,
@@ -25,7 +38,8 @@ class App extends Component {
     loaded: 0,
     duration: 0,
     playbackRate: 1.0,
-    loop: false
+    loop: false,
+    config: {}
   }
 
   load = url => {
@@ -132,6 +146,18 @@ class App extends Component {
     screenfull.request(findDOMNode(this.player))
   }
 
+  handleLoadAmpConfigs = (e) => {
+    const amp = JSON.parse(e.currentTarget.value)
+    amp.nativeControlsForTouch = isIOS()
+    const config = {
+      amp
+    }
+    console.log(config)
+    this.setState({
+      config
+    })
+  }
+
   renderLoadButton = (url, label) => {
     return (
       <button onClick={() => this.load(url)}>
@@ -145,7 +171,7 @@ class App extends Component {
   }
 
   render () {
-    const { url, playing, controls, light, volume, muted, loop, played, loaded, duration, playbackRate, pip } = this.state
+    const { url, playing, controls, light, volume, muted, loop, played, loaded, duration, playbackRate, pip, config } = this.state
     const SEPARATOR = ' · '
 
     return (
@@ -179,6 +205,7 @@ class App extends Component {
               onError={e => console.log('onError', e)}
               onProgress={this.handleProgress}
               onDuration={this.handleDuration}
+              config={config}
             />
           </div>
 
@@ -360,6 +387,16 @@ class App extends Component {
                   <br />
                   {this.renderLoadButton('https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8', 'HLS (m3u8)')}
                   {this.renderLoadButton('http://dash.edgesuite.net/envivio/EnvivioDash3/manifest.mpd', 'DASH (mpd)')}
+                </td>
+              </tr>
+              <tr>
+                <th>AzureMediaPlayer</th>
+                <td>
+                  {this.renderLoadButton('https://amssamples.streaming.mediaservices.windows.net/3b970ae0-39d5-44bd-b3a3-3136143d6435/AzureMediaServicesPromo.ism/manifest', 'No Token')}
+                  <br />
+                  {this.renderLoadButton('https://videoindexerams2e755129-euno.streaming.media.azure.net/f4b06aea-6cb5-41c0-a91f-940cedb04507/conference-recording-2610.ism/manifest(format=mpd-time-csf,encryption=cbc)', 'Token')}
+                  <br />
+                  <textarea type='textarea' placeholder='APM configs' onChange={this.handleLoadAmpConfigs} />
                 </td>
               </tr>
               <tr>

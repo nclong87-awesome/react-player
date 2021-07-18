@@ -1,47 +1,146 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
-import { callPlayer, getSDK } from '../utils'
-import { canPlay, MATCH_URL_STREAMABLE } from '../patterns'
+import { callPlayer, getSDK, loadCss, loadJs } from '../utils'
+import { canPlay } from '../patterns'
 
-const SDK_URL = 'https://cdn.embed.ly/player-0.1.0.min.js'
-const SDK_GLOBAL = 'playerjs'
+const SDK_URL = 'https://amp.azure.net/libs/amp/2.3.8/azuremediaplayer.min.js'
+const SDK_GLOBAL = 'AMP'
+const SKIN = 'amp-default'
 
-export default class Streamable extends Component {
-  static displayName = 'Streamable'
-  static canPlay = canPlay.streamable
-  callPlayer = callPlayer
-  duration = null
-  currentTime = null
-  secondsLoaded = null
+export default class AzureMediaPlayer extends PureComponent {
+  static displayName = 'AzureMediaPlayer'
+  static canPlay = canPlay.amp
+  static forceLoad = true // Prevent checking isLoading when URL changes
+
+  constructor (props) {
+    super(props)
+    this.callPlayer = callPlayer
+    this.duration = null
+    this.currentTime = null
+    this.secondsLoaded = null
+    this.player = null
+    this.video = React.createRef()
+    this.onLoaded = this.onLoaded.bind(this)
+  }
 
   componentDidMount () {
     this.props.onMount && this.props.onMount(this)
+    loadCss(`https://amp.azure.net/libs/amp/2.3.8/skins/${SKIN}/azuremediaplayer.min.css`)
+  }
+
+  componentWillUnmount () {
+    const player = this.player
+    if (player) {
+      try {
+        player.removeEventListener(window.amp.eventName.waiting, this.props.onBuffer)
+        player.removeEventListener(window.amp.eventName.pause, this.props.onPause)
+        player.removeEventListener(window.amp.eventName.seeked, this.props.onSeek)
+        player.removeEventListener(window.amp.eventName.ended, this.props.onEnded)
+        player.removeEventListener(window.amp.eventName.play, this.props.onPlay)
+        player.removeEventListener(window.amp.eventName.playing, this.props.onBufferEnd)
+        player.removeEventListener(window.amp.eventName.error, this.props.onError)
+        player.removeEventListener(window.amp.eventName.loadeddata, this.onLoaded)
+      } catch (e) {
+        console.log('ERROR', e.message)
+      }
+      player.dispose()
+    }
+  }
+
+  onLoaded () {
+    const { playsinline, config } = this.props
+    const { transcripts } = config
+    const player = this.player
+    player.addEventListener(window.amp.eventName.waiting, this.props.onBuffer)
+    player.addEventListener(window.amp.eventName.pause, this.props.onPause)
+    player.addEventListener(window.amp.eventName.seeked, this.props.onSeek)
+    player.addEventListener(window.amp.eventName.ended, this.props.onEnded)
+    player.addEventListener(window.amp.eventName.play, this.props.onPlay)
+    player.addEventListener(window.amp.eventName.error, this.props.onError)
+    player.addEventListener(window.amp.eventName.playing, this.props.onBufferEnd)
+    if (playsinline) {
+      player.setAttribute('playsinline', '')
+      player.setAttribute('webkit-playsinline', '')
+      player.setAttribute('x5-playsinline', '')
+    }
+    if (transcripts) {
+      loadJs('https://breakdown.blob.core.windows.net/public/amp-vb.plugin.js', () => player.videobreakdown !== undefined).then(() => {
+        player.videobreakdown({
+          syncTranscript: true,
+          syncLanguage: true
+        })
+      })
+    }
+    this.props.onReady()
   }
 
   load (url) {
-    getSDK(SDK_URL, SDK_GLOBAL).then(playerjs => {
-      if (!this.iframe) return
-      this.player = new playerjs.Player(this.iframe)
-      this.player.setLoop(this.props.loop)
-      this.player.on('ready', this.props.onReady)
-      this.player.on('play', this.props.onPlay)
-      this.player.on('pause', this.props.onPause)
-      this.player.on('seeked', this.props.onSeek)
-      this.player.on('ended', this.props.onEnded)
-      this.player.on('error', this.props.onError)
-      this.player.on('timeupdate', ({ duration, seconds }) => {
-        this.duration = duration
-        this.currentTime = seconds
-      })
-      this.player.on('buffered', ({ percent }) => {
-        if (this.duration) {
-          this.secondsLoaded = this.duration * percent
+    this.duration = null
+    getSDK(SDK_URL, SDK_GLOBAL).then(() => {
+      if (window.amp) {
+        const { nativeControlsForTouch, token, manifestProxy, transcripts } = this.props.config
+        this.player = window.amp(this.video.current, {
+          nativeControlsForTouch: nativeControlsForTouch === true,
+          playsInline: this.props.playsinline,
+          controls: this.props.controls,
+          muted: this.props.muted,
+          autoplay: this.props.playing,
+          logo: { enabled: false }
+        })
+        const src = this.props.url
+        const listSrc = []
+        if (token) {
+          if (!manifestProxy) {
+            listSrc.push({
+              src,
+              type: 'application/dash+xml',
+              streamingFormats: ['DASH'],
+              protectionInfo: [
+                {
+                  type: 'AES',
+                  authenticationToken: token
+                }
+              ]
+            })
+          } else {
+            listSrc.push({
+              src,
+              type: 'application/vnd.ms-sstr+xml',
+              streamingFormats: ['SMOOTH', 'DASH'],
+              protectionInfo: [
+                {
+                  type: 'AES',
+                  authenticationToken: token
+                }
+              ]
+            })
+            let proxySrc = this.props.url
+            if (proxySrc.indexOf('(format=mpd-time-csf,encryption=cbc)') >= 0) {
+              proxySrc = proxySrc.replace(
+                '(format=mpd-time-csf,encryption=cbc)',
+                '(format=m3u8-aapl,encryption=cbc)'
+              )
+            }
+            listSrc.push({
+              src: `${manifestProxy}?playbackUrl=${proxySrc}&token=Bearer%3d${token}`,
+              type: 'application/vnd.apple.mpegurl',
+              disableUrlRewriter: true
+            })
+          }
+        } else {
+          listSrc.push({
+            src,
+            type: 'application/dash+xml',
+            streamingFormats: ['DASH']
+          })
         }
-      })
-      if (this.props.muted) {
-        this.player.mute()
+        this.player.src(listSrc, transcripts || [])
+        if (nativeControlsForTouch === true) {
+          setTimeout(() => this.callPlayer('play'), 100)
+        }
+        this.player.addEventListener(window.amp.eventName.loadeddata, this.onLoaded)
       }
-    }, this.props.onError)
+    })
   }
 
   play () {
@@ -53,31 +152,35 @@ export default class Streamable extends Component {
   }
 
   stop () {
-    // Nothing to do
+    this.callPlayer('unload')
   }
 
   seekTo (seconds) {
-    this.callPlayer('setCurrentTime', seconds)
+    this.callPlayer('currentTime', seconds)
   }
 
   setVolume (fraction) {
-    this.callPlayer('setVolume', fraction * 100)
+    this.callPlayer('volume', fraction)
   }
 
   setLoop (loop) {
     this.callPlayer('setLoop', loop)
   }
 
+  setPlaybackRate (rate) {
+    this.callPlayer('playbackRate', rate)
+  }
+
   mute = () => {
-    this.callPlayer('mute')
+    this.callPlayer('muted', true)
   }
 
   unmute = () => {
-    this.callPlayer('unmute')
+    this.callPlayer('muted', false)
   }
 
   getDuration () {
-    return this.duration
+    return this.callPlayer('duration')
   }
 
   getCurrentTime () {
@@ -88,25 +191,34 @@ export default class Streamable extends Component {
     return this.secondsLoaded
   }
 
-  ref = iframe => {
-    this.iframe = iframe
+  ref = player => {
+    if (this.player) {
+      // Store previous player to be used by removeListeners()
+      this.prevPlayer = this.player
+    }
+    this.player = player
   }
 
   render () {
-    const id = this.props.url.match(MATCH_URL_STREAMABLE)[1]
+    const { display } = this.props
     const style = {
       width: '100%',
-      height: '100%'
+      height: '100%',
+      overflow: 'hidden',
+      display
     }
     return (
-      <iframe
-        ref={this.ref}
-        src={`https://streamable.com/o/${id}`}
-        frameBorder='0'
-        scrolling='no'
+      <div
+        key={this.props.url}
         style={style}
-        allowFullScreen
-      />
+      >
+        <video
+          ref={this.video}
+          style={style}
+          className={`azuremediaplayer ${SKIN}-skin amp-big-play-centered`}
+          tabIndex='0'
+        />
+      </div>
     )
   }
 }

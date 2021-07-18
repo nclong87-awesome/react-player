@@ -18,6 +18,7 @@ export const VIDEO_EXTENSIONS = /\.(mp4|og[gv]|webm|mov|m4v)($|\?)/i
 export const HLS_EXTENSIONS = /\.(m3u8)($|\?)/i
 export const DASH_EXTENSIONS = /\.(mpd)($|\?)/i
 export const FLV_EXTENSIONS = /\.(flv)($|\?)/i
+export const MATCH_URL_AZURE_MEDIA = /\.ism\/manifest/i
 
 const canPlayFile = url => {
   if (url instanceof Array) {
@@ -60,5 +61,6 @@ export const canPlay = {
   mixcloud: url => MATCH_URL_MIXCLOUD.test(url),
   vidyard: url => MATCH_URL_VIDYARD.test(url),
   kaltura: url => MATCH_URL_KALTURA.test(url),
+  amp: url => MATCH_URL_AZURE_MEDIA.test(url),
   file: canPlayFile
 }

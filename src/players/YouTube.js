@@ -65,7 +65,7 @@ export default class YouTube extends Component {
             if (loop) {
               this.player.setLoop(true) // Enable playlist looping
             }
-            this.callPlayer('playVideo')
+            // this.callPlayer('playVideo')
             this.props.onReady()
           },
           onStateChange: this.onStateChange,
