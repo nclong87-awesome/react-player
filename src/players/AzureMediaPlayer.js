@@ -16,7 +16,6 @@ export default class AzureMediaPlayer extends PureComponent {
     super(props)
     this.callPlayer = callPlayer
     this.duration = null
-    this.currentTime = null
     this.secondsLoaded = null
     this.player = null
     this.video = React.createRef()
@@ -184,11 +183,22 @@ export default class AzureMediaPlayer extends PureComponent {
   }
 
   getCurrentTime () {
-    return this.currentTime
+    if (!this.player) return null
+    return this.player.currentTime
   }
 
   getSecondsLoaded () {
-    return this.secondsLoaded
+    if (!this.player) return null
+    const { buffered } = this.player
+    if (buffered.length === 0) {
+      return 0
+    }
+    const end = buffered.end(buffered.length - 1)
+    const duration = this.getDuration()
+    if (end > duration) {
+      return duration
+    }
+    return end
   }
 
   ref = player => {
