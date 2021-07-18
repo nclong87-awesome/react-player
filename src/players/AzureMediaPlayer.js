@@ -184,7 +184,7 @@ export default class AzureMediaPlayer extends PureComponent {
 
   getCurrentTime () {
     if (!this.player) return null
-    return this.player.currentTime
+    return this.player.currentTime()
   }
 
   getSecondsLoaded () {
