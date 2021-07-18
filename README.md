@@ -3,8 +3,8 @@
 </h1>
 
 <p align='center'>
-  <a href='https://www.npmjs.com/package/react-player'>
-    <img src='https://img.shields.io/npm/v/react-player.svg' alt='Latest npm version'>
+  <a href='https://www.npmjs.com/package/@meetingmaker/react-player'>
+    <img src='https://img.shields.io/npm/v/@meetingmaker/react-player.svg' alt='Latest npm version'>
   </a>
   <a href='https://travis-ci.org/CookPete/react-player'>
     <img src='https://img.shields.io/travis/CookPete/react-player/master.svg' alt='Build Status'>
@@ -12,7 +12,7 @@
   <a href='https://codecov.io/gh/CookPete/react-player'>
     <img src='https://img.shields.io/codecov/c/github/cookpete/react-player.svg' alt='Test Coverage'>
   </a>
-  <a href='https://www.patreon.com/cookpete'>
+  <a href='https://www.patreon.com/nclong87'>
     <img src='https://img.shields.io/badge/sponsor-patreon-fa6854.svg' alt='Become a sponsor on Patreon'>
   </a>
 </p>
@@ -28,32 +28,32 @@ ReactPlayer `v2.0` changes single player imports and adds lazy loading players. 
 ### Usage
 
 ```bash
-npm install react-player # or yarn add react-player
+npm install @meetingmaker/react-player # or yarn add @meetingmaker/react-player
 ```
 
 ```jsx
 import React from 'react'
-import ReactPlayer from 'react-player'
+import ReactPlayer from '@meetingmaker/react-player'
 
 // Render a YouTube video player
 <ReactPlayer url='https://www.youtube.com/watch?v=ysz5S6PUM-U' />
 ```
 
-By default, ReactPlayer supports [many different types](#supported-media) of `url`. If you only ever use one type, use imports such as `react-player/youtube` to reduce your bundle size. See [config keys](#config-prop) for all player keys.
+By default, ReactPlayer supports [many different types](#supported-media) of `url`. If you only ever use one type, use imports such as `@meetingmaker/react-player/youtube` to reduce your bundle size. See [config keys](#config-prop) for all player keys.
 
 ```jsx
 import React from 'react'
-import ReactPlayer from 'react-player/youtube'
+import ReactPlayer from '@meetingmaker/react-player/youtube'
 
 // Only loads the YouTube player
 <ReactPlayer url='https://www.youtube.com/watch?v=ysz5S6PUM-U' />
 ```
 
-If your build system supports `import()` statements, use `react-player/lazy` to lazy load the appropriate player for the `url` you pass in. This adds several `reactPlayer` chunks to your output, but reduces your main bundle size.
+If your build system supports `import()` statements, use `@meetingmaker/react-player/lazy` to lazy load the appropriate player for the `url` you pass in. This adds several `reactPlayer` chunks to your output, but reduces your main bundle size.
 
 ```jsx
 import React from 'react'
-import ReactPlayer from 'react-player/lazy'
+import ReactPlayer from '@meetingmaker/react-player/lazy'
 
 // Lazy load the YouTube player
 <ReactPlayer url='https://www.youtube.com/watch?v=ysz5S6PUM-U' />
@@ -150,6 +150,7 @@ Key | Options
 `mixcloud` | `options`: Override the [default player options](https://www.mixcloud.com/developers/widget/#methods)
 `dailymotion` | `params`: Override the [default player vars](https://developer.dailymotion.com/player#player-parameters)
 `twitch` | `options`: Override the [default player options](https://dev.twitch.tv/docs/embed)<br />`playerId`: Override player ID for consistent server-side rendering (use with [`react-uid`](https://github.com/thearnica/react-uid))
+`amp` | `token`: Pass authentication token<br />`manifestProxy`: Manifest URL proxy URL https://github.com/AzureMediaServicesSamples/HLSSafariProxy<br />`nativeControlsForTouch`: Use native controls on touch devices<br />`tracks`: Elements for subtitles
 `file` | `attributes`: Apply [element attributes](https://developer.mozilla.org/en/docs/Web/HTML/Element/video#Attributes)<br />`forceVideo`: Always render a `<video>` element<br />`forceAudio`: Always render an `<audio>` element<br />`forceHLS`: Use [hls.js](https://github.com/video-dev/hls.js) for HLS streams<br />`forceDASH`: Always use [dash.js](https://github.com/Dash-Industry-Forum/dash.js) for DASH streams<br />`forceFLV`: Always use [flv.js](https://github.com/Bilibili/flv.js)<br />`hlsOptions`: Override the [default `hls.js` options](https://github.com/video-dev/hls.js/blob/master/docs/API.md#fine-tuning)<br />`hlsVersion`: Override the [`hls.js`](https://github.com/video-dev/hls.js) version loaded from [`jsdelivr`](https://www.jsdelivr.com/package/npm/hls.js), default: `0.13.1`<br />`dashVersion`: Override the [`dash.js`](https://github.com/Dash-Industry-Forum/dash.js) version loaded from [`cdnjs`](https://cdnjs.com/libraries/dashjs), default: `2.9.2`<br />`flvVersion`: Override the [`flv.js`](https://github.com/Bilibili/flv.js) version loaded from [`jsdelivr`](https://www.jsdelivr.com/package/npm/flv.js), default: `1.5.0`
 
 Support for dash methods [dash methods](http://cdn.dashjs.org/latest/jsdoc/module-MediaPlayer.html) with example:
