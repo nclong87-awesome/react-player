@@ -79,7 +79,7 @@ export default class AzureMediaPlayer extends PureComponent {
       if (window.amp) {
         const { nativeControlsForTouch, token, manifestProxy, tracks } = this.props.config
         this.player = window.amp(this.video.current, {
-          nativeControlsForTouch: nativeControlsForTouch === true,
+          nativeControlsForTouch: this.props.controls && nativeControlsForTouch === true,
           playsInline: this.props.playsinline,
           controls: this.props.controls,
           muted: this.props.muted,
@@ -93,7 +93,7 @@ export default class AzureMediaPlayer extends PureComponent {
             listSrc.push({
               src,
               type: 'application/dash+xml',
-              streamingFormats: ['DASH'],
+              streamingFormats: nativeControlsForTouch ? [] : ['DASH'],
               protectionInfo: [
                 {
                   type: 'AES',
@@ -130,7 +130,7 @@ export default class AzureMediaPlayer extends PureComponent {
           listSrc.push({
             src,
             type: 'application/dash+xml',
-            streamingFormats: ['DASH']
+            streamingFormats: nativeControlsForTouch ? [] : ['DASH']
           })
         }
         this.player.src(listSrc, tracks || [])

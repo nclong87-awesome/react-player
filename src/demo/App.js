@@ -39,7 +39,11 @@ class App extends Component {
     duration: 0,
     playbackRate: 1.0,
     loop: false,
-    config: {}
+    config: {
+      amp: {
+        nativeControlsForTouch: isIOS()
+      }
+    }
   }
 
   load = url => {
@@ -148,10 +152,10 @@ class App extends Component {
 
   handleLoadAmpConfigs = (e) => {
     const amp = JSON.parse(e.currentTarget.value)
-    amp.nativeControlsForTouch = isIOS()
     const config = {
       amp
     }
+    config.amp.nativeControlsForTouch = isIOS()
     console.log(config)
     this.setState({
       config
@@ -206,6 +210,7 @@ class App extends Component {
               onProgress={this.handleProgress}
               onDuration={this.handleDuration}
               config={config}
+              playsinline
             />
           </div>
 
