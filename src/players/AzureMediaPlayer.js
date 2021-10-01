@@ -56,7 +56,8 @@ export default class AzureMediaPlayer extends PureComponent {
           controls: this.props.controls,
           muted: this.props.muted,
           autoplay: this.props.playing,
-          logo: { enabled: false }
+          logo: { enabled: false },
+          hotKeys: { enableVolumeScroll: false }
         })
         if (tracks) {
           loadJs('https://breakdown.blob.core.windows.net/public/amp-vb.plugin.js', () => this.player.videobreakdown !== undefined).then(() => {
