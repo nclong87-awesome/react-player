@@ -19,7 +19,6 @@ export default class AzureMediaPlayer extends PureComponent {
     this.secondsLoaded = null
     this.player = null
     this.video = React.createRef()
-    this.onLoaded = this.onLoaded.bind(this)
   }
 
   componentDidMount () {
@@ -38,39 +37,12 @@ export default class AzureMediaPlayer extends PureComponent {
         player.removeEventListener(window.amp.eventName.play, this.props.onPlay)
         player.removeEventListener(window.amp.eventName.playing, this.props.onBufferEnd)
         player.removeEventListener(window.amp.eventName.error, this.props.onError)
-        player.removeEventListener(window.amp.eventName.loadeddata, this.onLoaded)
+        player.removeEventListener(window.amp.eventName.loadeddata, this.props.onReady)
       } catch (e) {
         console.log('ERROR', e.message)
       }
       player.dispose()
     }
-  }
-
-  onLoaded () {
-    const { config } = this.props
-    const { tracks } = config
-    const player = this.player
-    player.addEventListener(window.amp.eventName.waiting, this.props.onBuffer)
-    player.addEventListener(window.amp.eventName.pause, this.props.onPause)
-    player.addEventListener(window.amp.eventName.seeked, this.props.onSeek)
-    player.addEventListener(window.amp.eventName.ended, this.props.onEnded)
-    player.addEventListener(window.amp.eventName.play, this.props.onPlay)
-    player.addEventListener(window.amp.eventName.error, this.props.onError)
-    player.addEventListener(window.amp.eventName.playing, this.props.onBufferEnd)
-    // if (playsinline) {
-    //   player.setAttribute('playsinline', '')
-    //   player.setAttribute('webkit-playsinline', '')
-    //   player.setAttribute('x5-playsinline', '')
-    // }
-    if (tracks) {
-      loadJs('https://breakdown.blob.core.windows.net/public/amp-vb.plugin.js', () => player.videobreakdown !== undefined).then(() => {
-        player.videobreakdown({
-          syncTranscript: true,
-          syncLanguage: true
-        })
-      })
-    }
-    this.props.onReady()
   }
 
   load (url) {
@@ -86,6 +58,21 @@ export default class AzureMediaPlayer extends PureComponent {
           autoplay: this.props.playing,
           logo: { enabled: false }
         })
+        if (tracks) {
+          loadJs('https://breakdown.blob.core.windows.net/public/amp-vb.plugin.js', () => this.player.videobreakdown !== undefined).then(() => {
+            this.player.videobreakdown({
+              syncTranscript: true,
+              syncLanguage: true
+            })
+          })
+        }
+        this.player.addEventListener(window.amp.eventName.waiting, this.props.onBuffer)
+        this.player.addEventListener(window.amp.eventName.pause, this.props.onPause)
+        this.player.addEventListener(window.amp.eventName.seeked, this.props.onSeek)
+        this.player.addEventListener(window.amp.eventName.ended, this.props.onEnded)
+        this.player.addEventListener(window.amp.eventName.play, this.props.onPlay)
+        this.player.addEventListener(window.amp.eventName.error, this.props.onError)
+        this.player.addEventListener(window.amp.eventName.playing, this.props.onBufferEnd)
         const src = this.props.url
         const listSrc = []
         if (token) {
@@ -134,10 +121,7 @@ export default class AzureMediaPlayer extends PureComponent {
           })
         }
         this.player.src(listSrc, tracks || [])
-        if (nativeControlsForTouch === true) {
-          setTimeout(() => this.callPlayer('play'), 100)
-        }
-        this.player.addEventListener(window.amp.eventName.loadeddata, this.onLoaded)
+        this.player.addEventListener(window.amp.eventName.loadeddata, this.props.onReady)
       }
     })
   }
@@ -189,7 +173,7 @@ export default class AzureMediaPlayer extends PureComponent {
 
   getSecondsLoaded () {
     if (!this.player) return null
-    const { buffered } = this.player
+    const buffered = this.player.buffered()
     if (buffered.length === 0) {
       return 0
     }
