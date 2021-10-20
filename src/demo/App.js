@@ -46,13 +46,19 @@ class App extends Component {
     }
   }
 
-  load = url => {
-    this.setState({
+  load = (url, label) => {
+    const newState = {
       url,
       played: 0,
       loaded: 0,
       pip: false
-    })
+    };
+    if (label === 'Token') {
+      this.urlAmpConfig.value = '{"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1cm46bWljcm9zb2Z0OmF6dXJlOm1lZGlhc2VydmljZXM6Y29udGVudGtleWlkZW50aWZpZXIiOiI5ZGRhMGJjYy01NmZiLTQxNDMtOWQzMi0zYWI5Y2M2ZWE4MGIiLCJpc3MiOiJodHRwOi8vdGVzdGFjcy5jb20vIiwiYXVkIjoidXJuOnRlc3QiLCJleHAiOjE3MTA4MDczODl9.lJXm5hmkp5ArRIAHqVJGefW2bcTzd91iZphoKDwa6w8","manifestProxy":"http://spyros-hls-proxy.azurewebsites.net/api/ManifestLoad"}';
+      this.urlInput.value = 'https://amssamples.streaming.mediaservices.windows.net/830584f8-f0c8-4e41-968b-6538b9380aa5/TearsOfSteelTeaser.ism/manifest(format=m3u8-aapl)';
+      newState.config = JSON.parse(this.urlAmpConfig.value);
+    }
+    this.setState(newState)
   }
 
   handlePlayPause = () => {
@@ -164,7 +170,7 @@ class App extends Component {
 
   renderLoadButton = (url, label) => {
     return (
-      <button onClick={() => this.load(url)}>
+      <button onClick={() => this.load(url, label)}>
         {label}
       </button>
     )
@@ -399,9 +405,9 @@ class App extends Component {
                 <td>
                   {this.renderLoadButton('https://amssamples.streaming.mediaservices.windows.net/3b970ae0-39d5-44bd-b3a3-3136143d6435/AzureMediaServicesPromo.ism/manifest', 'No Token')}
                   <br />
-                  {this.renderLoadButton('https://videoindexerams2e755129-euno.streaming.media.azure.net/f4b06aea-6cb5-41c0-a91f-940cedb04507/conference-recording-2610.ism/manifest(format=mpd-time-csf,encryption=cbc)', 'Token')}
+                  {this.renderLoadButton('https://amssamples.streaming.mediaservices.windows.net/830584f8-f0c8-4e41-968b-6538b9380aa5/TearsOfSteelTeaser.ism/manifest(format=m3u8-aapl)', 'Token')}
                   <br />
-                  <textarea type='textarea' placeholder='APM configs' onChange={this.handleLoadAmpConfigs} />
+                  <textarea type='textarea' ref={input => { this.urlAmpConfig = input }} placeholder='APM configs' onChange={this.handleLoadAmpConfigs} />
                 </td>
               </tr>
               <tr>

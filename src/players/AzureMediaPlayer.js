@@ -49,7 +49,16 @@ export default class AzureMediaPlayer extends PureComponent {
     this.duration = null
     getSDK(SDK_URL, SDK_GLOBAL).then(() => {
       if (window.amp) {
-        const { nativeControlsForTouch, token, manifestProxy, tracks } = this.props.config
+        const { hasFirewall, nativeControlsForTouch, token, manifestProxy, tracks } = this.props.config
+        if (hasFirewall && AzureHtml5JS?.HttpUtil?.httpRequestWithRetryConfig) {
+          const orgFunction = AzureHtml5JS.HttpUtil.httpRequestWithRetryConfig;
+          AzureHtml5JS.HttpUtil.httpRequestWithRetryConfig = (b, c, e, f, g) => {
+            if (b.includes('keydelivery') && c === 'POST') {
+              return orgFunction(b, 'GET', e, f, g);
+            }
+            return orgFunction(b, c, e, f, g);
+          }
+        }
         this.player = window.amp(this.video.current, {
           nativeControlsForTouch: this.props.controls && nativeControlsForTouch === true,
           playsInline: this.props.playsinline,
